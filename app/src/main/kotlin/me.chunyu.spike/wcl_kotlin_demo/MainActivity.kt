@@ -4,6 +4,8 @@ import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -13,6 +15,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.async
+import org.jetbrains.anko.find
+import org.jetbrains.anko.longToast
+import org.jetbrains.anko.uiThread
 
 /**
  * Kotlin的主类, 添加设置属性.
@@ -25,11 +31,28 @@ class MainActivity : AppCompatActivity() {
     //显式声明为String类型
     var info: String = "haha"
     var list:List<String> = listOf<String>()
+    val items = listOf(
+            "Mon 6/23 - Sunny - 31/17",
+            "Tue 6/24 - Foggy - 21/8",
+            "Wed 6/25 - Cloudy - 22/17",
+            "Thurs 6/26 - Rainy - 18/11",
+            "Fri 6/27 - Foggy - 21/10",
+            "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
+            "Sun 6/29 - Sunny - 20/7"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+//        val forecastList = findViewById(R.id.rvlist) as RecyclerView
+        val forecastList : RecyclerView = find(R.id.rvlist)
+        forecastList.layoutManager = LinearLayoutManager(this)
+        forecastList.adapter = ForecastListAdapter(items)
+
         main_tv_message.text = getString(R.string.hello_kotlin)
         main_tv_message.textSize = 20.0f
+        toast(main_tv_message.text.toString())
         // 自定义LinearLayout, val是不可改变immutable, var是可以改变mutable.
         val view = v<LinearLayout> {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
@@ -54,8 +77,18 @@ class MainActivity : AppCompatActivity() {
                 setTextColor(ContextCompat.getColor(applicationContext, R.color.colorAccent))
             }
         }
-
+        view.setOnClickListener { view -> Toast.makeText(this, "Click11111",Toast.LENGTH_SHORT).show() }
+        view.setOnClickListener { Toast.makeText(this, "Click11111",Toast.LENGTH_SHORT).show() }
+//        view.setOnClickListener({ view -> Toast.makeText(this, "Click",Toast.LENGTH_SHORT).show() })
         main_ll_container.addView(view)
+
+        async(){
+            ForecastRequest("beijing").execute()
+            uiThread {
+                Log.d("yc-request", "ForecastRequest performed")
+                longToast("ForecastRequest performed") }
+        }
+
     }
 
     fun max(a:Int,b:Int):Int = if(a > b) a else b
@@ -101,6 +134,10 @@ class MainActivity : AppCompatActivity() {
             print(list[arg])
             print(list.get(arg))
         }
+    }
+
+    fun toast(message: String, length: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(this, message, length).show()
     }
 
     // View的模板
