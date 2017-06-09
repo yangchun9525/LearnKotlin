@@ -1,6 +1,4 @@
-package me.chunyu.spike.wcl_kotlin_demo
-
-import java.util.*
+package me.chunyu.spike.wcl_kotlin_demo.entity
 
 /**
  * Created by chun.yang on 2017/6/7.

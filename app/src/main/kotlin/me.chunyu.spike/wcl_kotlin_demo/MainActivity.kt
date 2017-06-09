@@ -7,6 +7,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.util.Log.i
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +15,15 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.android.internal.util.Predicate
 import kotlinx.android.synthetic.main.activity_main.*
+import me.chunyu.spike.wcl_kotlin_demo.command.RequestForecastCommand
 import org.jetbrains.anko.async
 import org.jetbrains.anko.find
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.uiThread
+import java.util.*
+import java.util.Arrays.asList
 
 /**
  * Kotlin的主类, 添加设置属性.
@@ -47,8 +52,9 @@ class MainActivity : AppCompatActivity() {
 
 //        val forecastList = findViewById(R.id.rvlist) as RecyclerView
         val forecastList : RecyclerView = find(R.id.rvlist)
-        forecastList.layoutManager = LinearLayoutManager(this)
-        forecastList.adapter = ForecastListAdapter(items)
+        rvlist.layoutManager = LinearLayoutManager(this)
+//        forecastList.layoutManager = LinearLayoutManager(this)
+//        forecastList.adapter = ForecastListAdapter(items)
 
         main_tv_message.text = getString(R.string.hello_kotlin)
         main_tv_message.textSize = 20.0f
@@ -83,12 +89,36 @@ class MainActivity : AppCompatActivity() {
         main_ll_container.addView(view)
 
         async(){
-            ForecastRequest("beijing").execute()
+            val result = RequestForecastCommand("beijing").execute()
+//            ForecastRequest("beijing").execute()
             uiThread {
-                Log.d("yc-request", "ForecastRequest performed")
-                longToast("ForecastRequest performed") }
+//                forecastList.adapter = ForecastListAdapter(result)
+                Log.d("yc-request-111", result.city)
+                longToast("ForecastRequest performed")
+//                forecastList.adapter = ForecastListAdapter(result,
+//                        object : ForecastListAdapter.OnItemClickListener{
+//                            override fun invoke(forecast: Forecast) {
+//                                toast(forecast.date)
+//                            }
+//                        })
+                val adapter = ForecastList2Adapter(result) { forecast -> toast(forecast.date) }
+                val adapter2 = ForecastList2Adapter(result) { toast(it.date) }
+                rvlist.adapter = adapter2
+            }
         }
 
+        val features = Arrays.asList("Lambdas", "Default Method", "Stream API",
+                "Date and Time API")
+        features.forEach { n -> i("yc---",n.toString()) }
+        features.forEach(System.out::println);
+
+//        async(){
+//            ForecastRequest("shanghai").execute()
+//            uiThread {
+//                Log.d("yc-request-222", "ForecastRequest performed")
+//                longToast("ForecastRequest performed")
+//            }
+//        }
     }
 
     fun max(a:Int,b:Int):Int = if(a > b) a else b
